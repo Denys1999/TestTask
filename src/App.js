@@ -1,25 +1,56 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+import links from './_helpers/configs'
+import Main from "./Main/index"
+import Header from "./Header";
+import Details from "./Details/Details";
+export default function App() {
+  const [error, setError] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    fetch("https://api.coincap.io/v2/assets")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          setIsLoaded(true);
+          setData(result.data);
+        },
+        (error) => {
+          setIsLoaded(true);
+          setError(error);
+        }
+      )
+  }, [])
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+  if (error) {
+    return 
+    <div>Error: {error.message}</div>
+  } else if (!isLoaded) {
+    return <div>Please wait Loading... </div>;
+  } else {
+    return (
+        <BrowserRouter>
+        <Header/>
+        <Switch>
+        <Route exact path={links.main}>
+        <Main data={data} setData={setData} />
+        </Route>
+        <Route path={links.details}>
+        <Details/>
+        </Route>
+
+
+
+        </Switch>
+        
+        
+        
+        
+        </BrowserRouter>
+    
+        
+    );
+  }
 }
-
-export default App;
